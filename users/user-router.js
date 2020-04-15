@@ -1,11 +1,12 @@
 const express = require('express');
 
 const db = require('../data/db-config.js');
+const Users = require('./user-model.js');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  db('users')
+  Users.all()
   .then(users => {
     res.json(users);
   })
@@ -17,7 +18,8 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   const { id } = req.params;
 
-  db('users').where({ id })
+  // db('users').where({ id })
+  Users.byId(id)
   .then(users => {
     const user = users[0];
 
@@ -33,11 +35,11 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const userData = req.body;
+  // const userData = req.body;
 
-  db('users').insert(userData)
-  .then(ids => {
-    res.status(201).json({ created: ids[0] });
+  Users.insert(req.body)
+  .then(newUser => {
+    res.status(201).json({ data: newUser[0] });
   })
   .catch(err => {
     res.status(500).json({ message: 'Failed to create new user' });
@@ -48,7 +50,8 @@ router.put('/:id', (req, res) => {
   const { id } = req.params;
   const changes = req.body;
 
-  db('users').where({ id }).update(changes)
+  // db('users').where({ id }).update(changes)
+  Users.update(changes, id)
   .then(count => {
     if (count) {
       res.json({ update: count });
@@ -64,7 +67,8 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
-  db('users').where({ id }).del()
+  // db('users').where({ id }).del()
+  Users.del(id)
   .then(count => {
     if (count) {
       res.json({ removed: count });
